@@ -33,15 +33,30 @@ static const char* patternInput =
 struct PatternDatabase {
   Module wasm;
 
+  struct Pattern {
+    Expression* input;
+    Expression* output;
+    Pattern(Expression* input, Expression* output) : input(input), output(output) {}
+  };
+
+  std::vector<Pattern> patterns;
+
   PatternDatabase() {
+    // generate module
     SExpressionParser parser(const_cast<char*>(patternInput));
     Element& root = *parser.root;
-    if (options.debug) std::cerr << "w-parsing..." << std::endl;
     SExpressionWasmBuilder builder(wasm, *root[0]);
+    // parse module form
+    auto* func = wasm.getFunction("patterns");
+    auto* body = func->body->cast<Block>();
+    for (auto* item : body->list) {
+      auto* pair = item->cast<Block>();
+      patterns.emplace_back(pair->list[0], pair->list[1]);
+    }
   }
 };
 
-static PatternDatabase patterns;
+static PatternDatabase database;
 
 struct OptimizeInstructions : public WalkerPass<PostWalker<OptimizeInstructions, Visitor<OptimizeInstructions>>> {
   bool isFunctionParallel() override { return true; }

@@ -8,7 +8,7 @@
 ";; a data file on the side."
 ""
 "(module"
-"(import $any "dsl" "any" (param i32))"
+"(import $any \"dsl\" \"any\" (param i32))"
 "(func $patterns"
 ";; each block here is a pattern pair of input => output"
 "(block"
