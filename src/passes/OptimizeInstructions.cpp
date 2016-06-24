@@ -44,18 +44,12 @@ struct PatternDatabase {
   char* input;
 
   PatternDatabase() {
+    // TODO: do this on first use, with a lock, to avoid startup pause
     // generate module
     input = strdup(INPUT);
-std::cout << input << '\n';
-try {
     SExpressionParser parser(input);
     Element& root = *parser.root;
     SExpressionWasmBuilder builder(wasm, *root[0]);
-} catch (ParseException& p) {
-  p.dump(std::cerr);
-  abort();
-}
-
     // parse module form
     auto* func = wasm.getFunction("patterns");
     auto* body = func->body->cast<Block>();
