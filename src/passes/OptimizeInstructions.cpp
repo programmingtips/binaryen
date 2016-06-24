@@ -43,7 +43,7 @@ struct PatternDatabase {
 
   char* input;
 
-  void xPatternDatabase() {
+  PatternDatabase() {
     // generate module
     input = strdup(INPUT);
 std::cout << input << '\n';
