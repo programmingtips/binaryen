@@ -6,16 +6,33 @@
   (type $1 (func))
   (type $2 (func (param f64) (result i32)))
   (type $3 (func (param f64 f64) (result f64)))
-  (type $4 (func (result f64)))
-  (type $5 (func (result i32)))
-  (type $6 (func (param i32) (result i32)))
-  (type $7 (func (param f64) (result f64)))
+  (type $4 (func))
+  (type $5 (func (result f64)))
+  (type $6 (func (param f64 f64) (result f64)))
+  (type $7 (func (result i32)))
+  (type $8 (func))
+  (type $9 (func))
+  (type $10 (func))
+  (type $11 (func (param i32) (result i32)))
+  (type $12 (func))
+  (type $13 (func (result f64)))
+  (type $14 (func (result i32)))
+  (type $15 (func (param f32)))
+  (type $16 (func (result f64)))
+  (type $17 (func))
+  (type $18 (func))
+  (type $19 (func (param f32)))
+  (type $20 (func))
+  (type $21 (func))
+  (type $22 (func))
+  (type $23 (func (result i32)))
+  (type $24 (func (param f64) (result f64)))
   (import $import$0 "env" "_emscripten_asm_const_vi")
   (import $import$1 "asm2wasm" "f64-to-int" (param f64) (result i32))
   (import $import$2 "asm2wasm" "f64-rem" (param f64 f64) (result f64))
   (export "big_negative" $big_negative)
   (table $z $big_negative $z $z $w $w $importedDoubles $w $z $cneg)
-  (func $big_negative (type $1)
+  (func $big_negative (type $4)
     (local $var$0 f64)
     (block $label$0
       (set_local $var$0
@@ -35,7 +52,7 @@
       )
     )
   )
-  (func $importedDoubles (type $4) (result f64)
+  (func $importedDoubles (type $5) (result f64)
     (local $var$0 f64)
     (block $label$0
       (set_local $var$0
@@ -91,7 +108,7 @@
       (f64.const 1.2)
     )
   )
-  (func $doubleCompares (type $3) (param $var$0 f64) (param $var$1 f64) (result f64)
+  (func $doubleCompares (type $6) (param $var$0 f64) (param $var$1 f64) (result f64)
     (local $var$2 i32)
     (local $var$3 f64)
     (local $var$4 f64)
@@ -143,14 +160,14 @@
       (get_local $var$1)
     )
   )
-  (func $intOps (type $5) (result i32)
+  (func $intOps (type $7) (result i32)
     (local $var$0 i32)
     (i32.eq
       (get_local $var$0)
       (i32.const 0)
     )
   )
-  (func $hexLiterals (type $1)
+  (func $hexLiterals (type $8)
     (i32.add
       (i32.add
         (i32.const 0)
@@ -159,7 +176,7 @@
       (i32.const -19088752)
     )
   )
-  (func $conversions (type $1)
+  (func $conversions (type $9)
     (local $var$0 i32)
     (local $var$1 f64)
     (block $label$0
@@ -183,7 +200,7 @@
       )
     )
   )
-  (func $seq (type $1)
+  (func $seq (type $10)
     (local $var$0 f64)
     (set_local $var$0
       (f64.sub
@@ -198,7 +215,7 @@
       )
     )
   )
-  (func $switcher (type $6) (param $var$0 i32) (result i32)
+  (func $switcher (type $11) (param $var$0 i32) (result i32)
     (block $label$0
       (block $label$1
         (block $label$2
@@ -280,18 +297,18 @@
       (i32.const 0)
     )
   )
-  (func $blocker (type $1)
+  (func $blocker (type $12)
     (block $label$0
       (br $label$0)
     )
   )
-  (func $frem (type $4) (result f64)
+  (func $frem (type $13) (result f64)
     (call_import $import$2
       (f64.const 5.5)
       (f64.const 1.2)
     )
   )
-  (func $big_uint_div_u (type $5) (result i32)
+  (func $big_uint_div_u (type $14) (result i32)
     (local $var$0 i32)
     (block $label$0
       (set_local $var$0
@@ -306,7 +323,7 @@
       (get_local $var$0)
     )
   )
-  (func $fr (type $0) (param $var$0 f32)
+  (func $fr (type $15) (param $var$0 f32)
     (local $var$1 f32)
     (local $var$2 f64)
     (block $label$0
@@ -320,10 +337,10 @@
       (f32.const 0)
     )
   )
-  (func $negZero (type $4) (result f64)
+  (func $negZero (type $16) (result f64)
     (f64.const -0)
   )
-  (func $abs (type $1)
+  (func $abs (type $17)
     (local $var$0 i32)
     (local $var$1 i32)
     (local $var$2 f32)
@@ -359,7 +376,7 @@
       )
     )
   )
-  (func $neg (type $1)
+  (func $neg (type $18)
     (local $var$0 f32)
     (block $label$0
       (set_local $var$0
@@ -379,7 +396,7 @@
       )
     )
   )
-  (func $cneg (type $0) (param $var$0 f32)
+  (func $cneg (type $19) (param $var$0 f32)
     (call_indirect $0
       (i32.add
         (i32.and
@@ -391,7 +408,7 @@
       (get_local $var$0)
     )
   )
-  (func $___syscall_ret (type $1)
+  (func $___syscall_ret (type $20)
     (local $var$0 i32)
     (i32.gt_u
       (i32.shr_u
@@ -401,13 +418,13 @@
       (i32.const -4096)
     )
   )
-  (func $z (type $1)
+  (func $z (type $21)
     (nop)
   )
-  (func $w (type $1)
+  (func $w (type $22)
     (nop)
   )
-  (func $block_and_after (type $5) (result i32)
+  (func $block_and_after (type $23) (result i32)
     (block $label$0
       (block $label$1
         (i32.const 1)
@@ -416,7 +433,7 @@
       (i32.const 0)
     )
   )
-  (func $loop-roundtrip (type $7) (param $var$0 f64) (result f64)
+  (func $loop-roundtrip (type $24) (param $var$0 f64) (result f64)
     (loop $label$0 $label$1
       (get_local $var$0)
       (get_local $var$0)
