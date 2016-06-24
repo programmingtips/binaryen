@@ -10,7 +10,7 @@ outfile = os.path.join(root, 'src', 'passes', 'OptimizeInstructions.wast.process
 out = open(outfile, 'w')
 
 for line in open(infile):
-  out.write('"' + line.strip().replace('"', '\\"') + '"\n')
+  out.write('"' + line.strip().replace('"', '\\"') + '\\n"\n')
 
 out.close()
 

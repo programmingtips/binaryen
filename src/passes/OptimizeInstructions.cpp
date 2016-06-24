@@ -26,7 +26,7 @@
 
 namespace wasm {
 
-static const char* patternInput =
+static const char* INPUT =
 #include "OptimizeInstructions.wast.processed"
 ;
 
@@ -41,11 +41,21 @@ struct PatternDatabase {
 
   std::vector<Pattern> patterns;
 
-  PatternDatabase() {
+  char* input;
+
+  void xPatternDatabase() {
     // generate module
-    SExpressionParser parser(const_cast<char*>(patternInput));
+    input = strdup(INPUT);
+std::cout << input << '\n';
+try {
+    SExpressionParser parser(input);
     Element& root = *parser.root;
     SExpressionWasmBuilder builder(wasm, *root[0]);
+} catch (ParseException& p) {
+  p.dump(std::cerr);
+  abort();
+}
+
     // parse module form
     auto* func = wasm.getFunction("patterns");
     auto* body = func->body->cast<Block>();
@@ -54,6 +64,10 @@ struct PatternDatabase {
       patterns.emplace_back(pair->list[0], pair->list[1]);
     }
   }
+
+  ~PatternDatabase() {
+    free(input);
+  };
 };
 
 static PatternDatabase database;
