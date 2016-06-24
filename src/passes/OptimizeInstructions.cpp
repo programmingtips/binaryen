@@ -26,8 +26,17 @@
 
 namespace wasm {
 
+Name I32_EXPR  = "i32.expr",
+     I64_EXPR  = "i64.expr",
+     F32_EXPR  = "f32.expr",
+     F64_EXPR  = "f64.expr",
+     ANY_EXPR  = "any.expr";
+
 // Information about a possible match
 struct Match {
+  std::vector<Expression*> wildcards; // id in i32.any(id) etc. => the expression it represents in this match
+  std::vector<Index> wildcardUses; // id in i32.any(id) etc. => the # of times the wildcard appears. if just one use, we can avoid copying.
+
   // Apply the match, generate an output expression from the matched input, performing substitutions as necessary
   Expression* apply(Expression* input) {
   }
@@ -40,8 +49,46 @@ struct Pattern {
 
   Pattern(Expression* input, Expression* output) : input(input), output(output) {}
 
-  // Try to match seen to this pattern, generating a match object if so
+  Match* currMatch;
+
+  // Try to match seen to this pattern, updating the match object if so
   bool match(Expression* seen, Match& match) {
+    // compare seen to the pattern input, doing a special operation for our "wildcards"
+    currMatch = &match;
+    assert(match.wildcards.size() == 0);
+    return ExpressionAnalyzer::flexibleEqual(input, seen, *this);
+  }
+
+  bool compare(Expression* subInput, Expression* subSeen) {
+    CallImport* call = subInput->dyncast<CallImport>();
+    if (!call || call->operands.size() != 1 || call->operands[0]->type == i32 || call->operands[0]->is<Const>()) return false;
+    Index index = call->operands[0]->geti32();
+    // handle our special functions
+    auto checkMatch(WasmType type) {
+      if (subSeen->type != type) return false;
+      if (index == currMatch->wildcards.size()) {
+        // new wildcard
+        currMatch->wildcards.push_back(subSeen); // NB: no need to copy
+        currMatch->wildcardUses.push_back(1);
+        return true;
+      };
+      assert(index < currMatch->wildcards.size()); // patterns must use indexes in order
+      // We are seeing this index for a second or later time, check it matches
+      currMatch->wildcardUses[index]++;
+      return ExpressionAnalyzer::equal(input, seen);
+    };
+    if (call->target == I32_EXPR) {
+      if (checkMatch(i32)) return true;
+    } else if (call->target == I64_EXPR) {
+      if (checkMatch(i64)) return true;
+    } else if (call->target == F32_EXPR) {
+      if (checkMatch(f32)) return true;
+    } else if (call->target == F64_EXPR) {
+      if (checkMatch(f64)) return true;
+    } else {
+      WASM_UNREACHABLE();
+    }
+    return false;
   }
 };
 

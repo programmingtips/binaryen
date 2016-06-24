@@ -11,12 +11,11 @@
   ;; "expr" represents an arbitrary expression. The input is an id, so the same expression
   ;; can appear more than once. The type (i32 in i32.expr, etc.) is the return type, as this
   ;; needs to have the right type for where it is placed.
-  (import $none.expr "dsl" "none.expr" (param i32))
   (import $i32.expr "dsl" "i32.expr" (param i32) (result i32))
   (import $i64.expr "dsl" "i64.expr" (param i32) (result i64))
   (import $f32.expr "dsl" "f32.expr" (param i32) (result f32))
   (import $f64.expr "dsl" "f64.expr" (param i32) (result f64))
-  (import $any.expr "dsl" "any.expr" (param i32) (result f64)) ;; ignorable return type
+  (import $any.expr "dsl" "any.expr" (param i32) (result i32)) ;; ignorable return type
 
   ;; main function. each block here is a pattern pair of input => output
   (func $patterns
