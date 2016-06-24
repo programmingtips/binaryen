@@ -88,7 +88,7 @@ struct OptimizeInstructions : public WalkerPass<PostWalker<OptimizeInstructions,
     while (1) {
       auto iter = database.patternMap.find(curr->_id);
       if (iter == database.patternMap.end()) return;
-      auto& patterns = *iter;
+      auto& patterns = iter->second;
       bool more = false;
       for (auto& pattern : patterns) {
         Match match;
