@@ -26,27 +26,39 @@
 
 namespace wasm {
 
-static const char* INPUT =
-#include "OptimizeInstructions.wast.processed"
-;
+// Information about a possible match
+struct Match {
+  // Apply the match, generate an output expression from the matched input, performing substitutions as necessary
+  Expression* apply(Expression* input) {
+  }
+};
 
+// A pattern
+struct Pattern {
+  Expression* input;
+  Expression* output;
+
+  Pattern(Expression* input, Expression* output) : input(input), output(output) {}
+
+  // Try to match seen to this pattern, generating a match object if so
+  bool match(Expression* seen, Match& match) {
+  }
+};
+
+// Database of patterns
 struct PatternDatabase {
   Module wasm;
 
-  struct Pattern {
-    Expression* input;
-    Expression* output;
-    Pattern(Expression* input, Expression* output) : input(input), output(output) {}
-  };
-
-  std::vector<Pattern> patterns;
-
   char* input;
+
+  std::map<Expression::Id, std::vector<Pattern>> patternMap; // root expression id => list of all patterns for it TODO optimize more
 
   PatternDatabase() {
     // TODO: do this on first use, with a lock, to avoid startup pause
     // generate module
-    input = strdup(INPUT);
+    input = strdup(
+      #include "OptimizeInstructions.wast.processed"
+    );
     SExpressionParser parser(input);
     Element& root = *parser.root;
     SExpressionWasmBuilder builder(wasm, *root[0]);
@@ -55,7 +67,7 @@ struct PatternDatabase {
     auto* body = func->body->cast<Block>();
     for (auto* item : body->list) {
       auto* pair = item->cast<Block>();
-      patterns.emplace_back(pair->list[0], pair->list[1]);
+      patternMap[pair->list[0]->_id].emplace_back(pair->list[0], pair->list[1]);
     }
   }
 
@@ -66,11 +78,30 @@ struct PatternDatabase {
 
 static PatternDatabase database;
 
-struct OptimizeInstructions : public WalkerPass<PostWalker<OptimizeInstructions, Visitor<OptimizeInstructions>>> {
+struct OptimizeInstructions : public WalkerPass<PostWalker<OptimizeInstructions, UnifiedExpressionVisitor<OptimizeInstructions>>> {
   bool isFunctionParallel() override { return true; }
 
   Pass* create() override { return new OptimizeInstructions; }
 
+  void visitExpression(Expression* curr) {
+    // we may be able to apply multiple patterns, one may open opportunities that look deeper NB: patterns must not have cycles
+    while (1) {
+      auto iter = database.patternMap.find(curr->_id);
+      if (iter == database.patternMap.end()) return;
+      auto& patterns = *iter;
+      bool more = false;
+      for (auto& pattern : patterns) {
+        Match match;
+        if (pattern.match(curr, match)) {
+          curr = match.apply(curr);
+          replaceCurrent(curr);
+          more = true;
+          break; // exit pattern for loop, return to main while loop
+        }
+      }
+      if (!more) break;
+    }
+  }
 };
 
 Pass *createOptimizeInstructionsPass() {
