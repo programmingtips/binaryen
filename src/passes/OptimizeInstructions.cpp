@@ -39,6 +39,9 @@ struct Match {
 
   // Apply the match, generate an output expression from the matched input, performing substitutions as necessary
   Expression* apply(Expression* input) {
+    for (auto use : wildcardUses) {
+      assert(use == 1); // TODO: support more uses, which means we need copying
+    }
   }
 };
 
@@ -65,7 +68,7 @@ struct Pattern {
     Index index = call->operands[0]->geti32();
     // handle our special functions
     auto checkMatch(WasmType type) {
-      if (subSeen->type != type) return false;
+      if (type != none && subSeen->type != type) return false;
       if (index == currMatch->wildcards.size()) {
         // new wildcard
         currMatch->wildcards.push_back(subSeen); // NB: no need to copy
@@ -85,8 +88,8 @@ struct Pattern {
       if (checkMatch(f32)) return true;
     } else if (call->target == F64_EXPR) {
       if (checkMatch(f64)) return true;
-    } else {
-      WASM_UNREACHABLE();
+    } else if (call->target == ANY_EXPR) {
+      if (checkMatch(none)) return true;
     }
     return false;
   }
